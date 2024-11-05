@@ -21,7 +21,13 @@ import {
 import logo from "../public/images/logo.png";
 import menupic from "../public/images/menupic.png";
 import Image from "next/image";
-import { Close, ExpandMore, Login, Search } from "@mui/icons-material";
+import {
+  Close,
+  ExpandMore,
+  Login,
+  PowerOff,
+  Search,
+} from "@mui/icons-material";
 import React, { useEffect, useState } from "react";
 import "@fontsource/roboto/300.css";
 import "@fontsource/roboto/400.css";
@@ -29,6 +35,8 @@ import "@fontsource/roboto/500.css";
 import "@fontsource/roboto/700.css";
 import { GiHamburgerMenu } from "react-icons/gi";
 import { BiSearch } from "react-icons/bi";
+import { CgProfile } from "react-icons/cg";
+import { BsBucket } from "react-icons/bs";
 
 interface Categories {
   category: string;
@@ -75,6 +83,21 @@ export const Header: React.FC = () => {
     setSearchAnchorEl(null);
   };
 
+  // profile menu
+  const [profileAnchorEl, setprofileAnchorEl] = useState<null | HTMLElement>(
+    null
+  );
+
+  const openProfile = Boolean(profileAnchorEl);
+
+  const handleClickProfile = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setprofileAnchorEl(event.currentTarget);
+  };
+
+  const handleCloseProfile = () => {
+    setprofileAnchorEl(null);
+  };
+
   //   get categories
   const [categories, setCategories] = useState<Categories[]>();
 
@@ -108,7 +131,9 @@ export const Header: React.FC = () => {
   };
 
   // Fetch all Products
-  const [productNames, setProductNames] = useState<{ name: string; id: string }[]>([]);
+  const [productNames, setProductNames] = useState<
+    { name: string; id: string }[]
+  >([]);
 
   const getProducts = async () => {
     try {
@@ -126,7 +151,7 @@ export const Header: React.FC = () => {
       throw new Error("failed to fetch");
     }
   };
-  
+
   useEffect(() => {
     getCategories();
     getSkinConditions();
@@ -570,20 +595,29 @@ export const Header: React.FC = () => {
               }}
             />
           </IconButton>
-          <Link
-            href={"/"}
-            sx={{
-              color: "black",
-              transition: "color 0.5s ease",
-              paddingY: "0",
-              "&:hover": {
-                color: "primary.main",
-                backgroundColor: "transparent",
-              },
-            }}
-          >
-            <Login />
-          </Link>
+          {sessionStorage.getItem("token") ? (
+            <IconButton
+              id={"resourses-button-profile"}
+              onClick={handleClickProfile}
+            >
+              <CgProfile />
+            </IconButton>
+          ) : (
+            <Link
+              href={"/login"}
+              sx={{
+                color: "black",
+                transition: "color 0.5s ease",
+                paddingY: "0",
+                "&:hover": {
+                  color: "primary.main",
+                  backgroundColor: "transparent",
+                },
+              }}
+            >
+              <Login />
+            </Link>
+          )}
         </Stack>
         {/* menus --------------------------------------------------------------------------- */}
         <Menu
@@ -805,6 +839,7 @@ export const Header: React.FC = () => {
             </Stack>
           </Stack>
         </Menu>
+        {/* search menu ------------------------------- */}
         <Menu
           anchorEl={searchAnchorEl}
           MenuListProps={{ "aria-labelledby": "resourses-button" }}
@@ -816,7 +851,13 @@ export const Header: React.FC = () => {
           <Stack
             direction={"column"}
             sx={{
-              width: {xs: "100vw", sm: "100vw", md: "50vw", lg: "40vw", xl: "40vw"},
+              width: {
+                xs: "100vw",
+                sm: "100vw",
+                md: "50vw",
+                lg: "40vw",
+                xl: "40vw",
+              },
               height: "auto",
               padding: "25px",
               boxSizing: "border-box",
@@ -827,28 +868,115 @@ export const Header: React.FC = () => {
             }}
           >
             <TextField
-                value={searchInput}
-                onChange={(e) => setSearchInput(e.target.value)}
-                sx={{ width: "90%" }}
-                label={"Search"}
-              />
-              <List sx={{ display: searchInput === "" ? "none" : "block" }}>
-                {filteredProducts.map((product) => (
-                  <ListItem key={product.id} sx={{ padding: "5px 0" }}>
-                    <Link
-                      href={`/skincare/${product.id}`}
-                      sx={{
-                        textDecoration: "none",
-                        color: "inherit",
-                        padding: "10px",
-                        "&:hover": { color: "primary.main" },
-                      }}
-                    >
-                      <Typography variant="body1">{product.name}</Typography>
-                    </Link>
-                  </ListItem>
-                ))}
-              </List>
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              sx={{ width: "90%" }}
+              label={"Search"}
+            />
+            <List sx={{ display: searchInput === "" ? "none" : "block" }}>
+              {filteredProducts.map((product) => (
+                <ListItem key={product.id} sx={{ padding: "5px 0" }}>
+                  <Link
+                    href={`/skincare/${product.id}`}
+                    sx={{
+                      textDecoration: "none",
+                      color: "inherit",
+                      padding: "10px",
+                      "&:hover": { color: "primary.main" },
+                    }}
+                  >
+                    <Typography variant="body1">{product.name}</Typography>
+                  </Link>
+                </ListItem>
+              ))}
+            </List>
+          </Stack>
+        </Menu>
+        {/* profile menu */}
+        <Menu
+          anchorEl={profileAnchorEl}
+          MenuListProps={{ "aria-labelledby": "resourses-button-profile" }}
+          open={openProfile}
+          onClose={handleCloseProfile}
+          id="resourses-menu-profile"
+          sx={{ width: "auto" }}
+          anchorOrigin={{
+            vertical: "bottom",
+            horizontal: "center",
+          }}
+          transformOrigin={{
+            vertical: "top",
+            horizontal: "center",
+          }}
+        >
+          <Stack
+            direction={"column"}
+            sx={{
+              width: "100%",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "space-evenly",
+              alignItems: "flex-end",
+              padding: "10px 20px",
+              boxSizing: "border-box",
+            }}
+          >
+            <Button
+              sx={{
+                borderBottom: "1px solid gray",
+                padding: "10px 0",
+                color: "black",
+                "&:hover": { color: "primary.main" },
+              }}
+              endIcon={<CgProfile />}
+            >
+              <Link
+                sx={{
+                  textDecoration: "none",
+                  color: "black",
+                  "&:hover": { color: "primary.main" },
+                }}
+                href={"/my-account"}
+              >
+                My Account
+              </Link>
+            </Button>
+            <Button
+              sx={{
+                borderBottom: "1px solid gray",
+                padding: "10px 0",
+                color: "black",
+                "&:hover": { color: "primary.main" },
+              }}
+              endIcon={<BsBucket />}
+            >
+              <Link
+                sx={{
+                  textDecoration: "none",
+                  color: "black",
+                  "&:hover": { color: "primary.main" },
+                }}
+                href={"/my-cart"}
+              >
+                My Cart
+              </Link>
+            </Button>
+            <Button
+              sx={{
+                borderBottom: "1px solid gray",
+                padding: "10px 0",
+                color: "black",
+                "&:hover": { color: "primary.main" },
+              }}
+              endIcon={<PowerOff />}
+              onClick={() => {
+                sessionStorage.removeItem("token");
+                sessionStorage.removeItem("userId");
+                window.location.reload();
+              }}
+            >
+              Log Out
+            </Button>
           </Stack>
         </Menu>
       </Toolbar>

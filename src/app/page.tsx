@@ -1,7 +1,7 @@
 "use client";
 import { Header } from "../../components/Header";
 import { createTheme, ThemeProvider } from "@mui/material";
-import { MyProvider } from "../../context/Context";
+// import { MyProvider } from "../../context/Context";
 import { SlideShow } from "../../components/SlideShow";
 import { ProductCategories } from "../../components/ProductCategories";
 import { SkinCareAnalysis } from "../../components/SkinCareAnalysis";
@@ -25,7 +25,6 @@ export default function Home() {
   });
   return (
     <ThemeProvider theme={theme}>
-      <MyProvider>
         <Header />
         <SlideShow/>
         <ProductCategories/>
@@ -36,7 +35,6 @@ export default function Home() {
         <OurBrand/>
         <OurBlog/>
         <Footer/>
-      </MyProvider>
     </ThemeProvider>
   );
 }
