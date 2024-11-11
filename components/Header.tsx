@@ -34,7 +34,6 @@ import "@fontsource/roboto/400.css";
 import "@fontsource/roboto/500.css";
 import "@fontsource/roboto/700.css";
 import { GiHamburgerMenu } from "react-icons/gi";
-import { BiSearch } from "react-icons/bi";
 import { CgProfile } from "react-icons/cg";
 import { BsBucket } from "react-icons/bs";
 
@@ -595,7 +594,7 @@ export const Header: React.FC = () => {
               }}
             />
           </IconButton>
-          {sessionStorage.getItem("token") ? (
+          {sessionStorage.getItem("userId") ? (
             <IconButton
               id={"resourses-button-profile"}
               onClick={handleClickProfile}

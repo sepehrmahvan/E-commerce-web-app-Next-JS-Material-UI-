@@ -12,14 +12,22 @@ import {
 import { GoogleLogin, GoogleOAuthProvider } from "@react-oauth/google";
 import { jwtDecode } from "jwt-decode";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { BsEye, BsEyeSlash } from "react-icons/bs";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useRedirectIfLoggedIn } from "../../../hooks/useRedirectIfLoggedIn";
+import { useForm } from "react-hook-form";
+import { DevTool } from "@hookform/devtools";
+import "./login.scss";
 
 interface CustomJwtPayload {
   email: string;
+}
+
+interface FormValues {
+  email: string,
+  password: string
 }
 
 const login: React.FC = () => {
@@ -71,15 +79,24 @@ const login: React.FC = () => {
     }
   };
 
-  const [email, setEmail] = useState<string>("");
-  const [password, setPassword] = useState<string>("");
+  // react hook form
+  const form = useForm<FormValues>({
+    defaultValues: {
+      email: "",
+      password: ""
+    },
+  });
+  const { register, control, handleSubmit, formState, reset } = form;
+
+  const { errors, isDirty, isValid, isSubmitting, isSubmitSuccessful } = formState;
+
   const [passwordType, setPasswordType] = useState<boolean>(false);
 
-  const signIn = async () => {
+  const onSubmit = async (data: FormValues) => {
     try {
       const response = await fetch("http://localhost:8080/api/login", {
         method: "POST",
-        body: JSON.stringify({ email: email, password: password }),
+        body: JSON.stringify({ email: data.email, password: data.password }),
         headers: { "Content-Type": "application/json" },
       });
       const result = await response.json();
@@ -94,6 +111,12 @@ const login: React.FC = () => {
     }
   };
 
+  useEffect(() => {
+    if (!isSubmitSuccessful) {
+      reset();
+    }
+  }, [isSubmitSuccessful, reset]);
+
   return (
     <ThemeProvider theme={theme}>
       <GoogleOAuthProvider clientId="156777906314-amsm4rq3mbfsocqcni2dsi7ic9kddjuo.apps.googleusercontent.com">
@@ -107,9 +130,10 @@ const login: React.FC = () => {
             alignItems: "center",
           }}
         >
-          <Stack
-            sx={{
-              width: { xs: "100%", sm: "60%", md: "40%", lg: "30%", xl: "30%" },
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            noValidate
+            style={{
               backgroundColor: "white",
               padding: "20px",
               boxSizing: "border-box",
@@ -171,9 +195,16 @@ const login: React.FC = () => {
             </Typography>
             <TextField
               sx={{ width: "100%" }}
-              onChange={(e: any) => setEmail(e.target.value)}
               type="email"
               label="Email"
+              {...register("email", {
+                required: {
+                  value: true,
+                  message: "email is required",
+                },
+              })}
+              error={!!errors.email}
+              helperText={errors.email?.message}
             />
             <Typography
               sx={{
@@ -207,10 +238,17 @@ const login: React.FC = () => {
                 {passwordType === false ? <BsEyeSlash /> : <BsEye />}
               </Button>
               <TextField
-                onChange={(e: any) => setPassword(e.target.value)}
                 type={passwordType === false ? "password" : "text"}
                 label="password"
                 sx={{ width: "100%" }}
+                {...register("password", {
+                  required: {
+                    value: true,
+                    message: "password is required",
+                  },
+                })}
+                error={!!errors.password}
+                helperText={errors.password?.message}
               />
             </Box>
             <Link
@@ -225,7 +263,8 @@ const login: React.FC = () => {
               create account
             </Link>
             <Button
-              onClick={signIn}
+              type="submit"
+              disabled={!isDirty || !isValid || isSubmitting}
               variant="contained"
               sx={{
                 my: "20px",
@@ -236,7 +275,8 @@ const login: React.FC = () => {
             >
               Sign In
             </Button>
-          </Stack>
+          </form>
+          <DevTool control={control} />
           <ToastContainer
             position="top-right"
             autoClose={3000}
