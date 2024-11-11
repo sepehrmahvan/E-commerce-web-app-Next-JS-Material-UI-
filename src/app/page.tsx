@@ -1,7 +1,6 @@
 "use client";
 import { Header } from "../../components/Header";
 import { createTheme, ThemeProvider } from "@mui/material";
-// import { MyProvider } from "../../context/Context";
 import { SlideShow } from "../../components/SlideShow";
 import { ProductCategories } from "../../components/ProductCategories";
 import { SkinCareAnalysis } from "../../components/SkinCareAnalysis";

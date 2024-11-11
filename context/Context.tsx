@@ -1,4 +1,5 @@
-import { createContext, ReactNode, useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { createContext, ReactNode } from "react";
 
 const MyContext = createContext<any | null>(null);
 const { Provider } = MyContext;
@@ -29,16 +30,16 @@ const MyProvider = ({ children }: MyProviderProps) => {
     }
   };
 
-  useEffect(() => {
-    checkTokenValidity();
+  const { error } = useQuery({
+    queryKey: ["tokenValidity"],
+    queryFn: checkTokenValidity,
+    refetchInterval: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
+  });
 
-    const intervalId = setInterval(() => {
-      checkTokenValidity();
-    }, 5 * 60 * 1000); // every 5 minutes
-
-    return () => clearInterval(intervalId);
-  }, []);
-
+  if (error instanceof Error) {
+    console.error("Error checking token validity:", error.message);
+  }
 
   const contextValue: MycontextProps = {};
   return <Provider value={contextValue}>{children}</Provider>;
